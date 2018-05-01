@@ -98,6 +98,22 @@ if __name__=='__main__':
         cam[i].release()
     cv2.destroyAllWindows()
 
+#%% add timer for take a picture
+from threading import Timer
+import time
+ 
+def hello():
+    print ('hello')
+
+def timer(func):
+    func()
+    Timer(3,timer, args=(func,)).start()
+
+if __name__=='__main__':
+    timer(hello)
+    for i in range(10):
+        time.sleep(1)
+        print(i)
     
 
 
