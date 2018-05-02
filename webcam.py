@@ -151,17 +151,30 @@ if __name__=='__main__':
 #%%
 from threading import Timer
 import time
-def hello(a):
-    print(a is None)
-def timer(func, *arg):
-    print(func, *arg)
-    func(*arg)
-    Timer(3, timer, args=(func, *arg)).start()
 
-
-a = None
-timer(hello, a)
-while 1:
+def hello():
     global a
-    a = 22
+    if a is 1:
+        print('a still is 1')
+    else:
+        print('good, now a is {}'.format(a))
+
+def timer(func, *arg):
+    func(*arg)
+    t = Timer(1, timer, args=(hello, *arg))
+    t.setDaemon(True)
+    if t.daemon:
+        t.start()
+    else:
+        return 0
+    
+    
+if __name__=='__main__':
+#    start = time.time()
+#    timer(hello)
+     a = 1
+     timer(hello)
+     for i in range(6):
+         time.sleep(0.5)
+         a = i
 
