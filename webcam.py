@@ -10,19 +10,21 @@ import cv2
 import matplotlib.pyplot as plt
 #import numpy as np
 from threading import Timer
-import time
+#import time
         
 def print_picture(name, image):
     cv2.imshow('picture_{}'.format(name), image)
 def save_picture(name, image):
-    cv2.imwrite('pic_{}.png'.format(name), image)
-def saveandshow_pic(name, image=None):
-    if image is None:
-        print('camara not yet open')
-    else:
-        cv2.imshow('picture_{}'.format(name), image)
+    cv2.imwrite('good_{}.png'.format(name), image)
+def saveandshow_pic(name):
+    global ret
+    global image
+    print(ret)
+    if ret:
+#        cv2.imshow('picture_{}'.format(name), image)
         cv2.imwrite('pic_{}.png'.format(name), image)
-
+    else:
+        print('camara{} not yet open'.format(name))
 
 class Camera(cv2.VideoCapture):
     def __init__(self, camera_number):
@@ -84,10 +86,15 @@ class Camera(cv2.VideoCapture):
 #        cv2.imshow('good', img)
 #        self._cap.release()
 
-def timer(func, second=3, *arg):
+def timer(func, second=2, *arg):
 #    print(func, second, *arg)
     func(*arg)
-    Timer(second, timer, args=(func, 3, *arg)).start()
+    t = Timer(second, timer, args=(func, 2, *arg))
+    t.setDaemon(True)
+    if t.daemon:
+        t.start()
+    else:
+        return 0
 
     
 if __name__=='__main__':
@@ -115,66 +122,18 @@ if __name__=='__main__':
 #    cv2.destroyAllWindows()
     
     cam = cv2.VideoCapture(0)
-    global img
-    img = None
-    timer(saveandshow_pic, 3, '1', img)
+    ret = image = 0
+    timer(saveandshow_pic, 3, '1')
     while True:
-        ret, img = cam.read()
-        cv2.imshow('1', img)
+        ret, image = cam.read()
+        cv2.imshow('1', image)
         if cv2.waitKey(5) == 27:
             break
-        if cv2.waitKey(5) == 115:
-            print_picture('1', img)
-            save_picture('1', img)
+#        if cv2.waitKey(5) == 115:
+#            print_picture('1', img)
+#            save_picture('1', img)
 
     cam.release()
     cv2.destroyAllWindows()
 
-#%% add timer for take a picture
-from threading import Timer
-import time
-def hello(name, idnum):
-    print('Hello {}! My id is {}'.format(name, idnum))
-
-
-def timer(func, second=3, *arg):
-    print(func, second, arg, *arg)
-    func(*arg)
-    Timer(second, timer, args=(func, 3, *arg)).start()
-
-if __name__=='__main__':
-    timer(hello, 2, 'a', 22)
-#    for i in range(10):
-#        time.sleep(1)
-#        print(i)
-    
-#%%
-from threading import Timer
-import time
-
-def hello():
-    global a
-    if a is 1:
-        print('a still is 1')
-    else:
-        print('good, now a is {}'.format(a))
-
-def timer(func, *arg):
-    func(*arg)
-    t = Timer(1, timer, args=(hello, *arg))
-    t.setDaemon(True)
-    if t.daemon:
-        t.start()
-    else:
-        return 0
-    
-    
-if __name__=='__main__':
-#    start = time.time()
-#    timer(hello)
-     a = 1
-     timer(hello)
-     for i in range(6):
-         time.sleep(0.5)
-         a = i
 
