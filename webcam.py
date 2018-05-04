@@ -10,20 +10,29 @@ import cv2
 import matplotlib.pyplot as plt
 #import numpy as np
 from threading import Timer
-import time
+#import time
         
 def print_picture(name, image):
     cv2.imshow('picture_{}'.format(name), image)
 def save_picture(name, image):
-    cv2.imwrite('pic_{}.png'.format(name), image)
-def saveandshow_pic(name, image=None):
-    if image is None:
-        print('camara not yet open')
-    else:
-        cv2.imshow('picture_{}'.format(name), image)
+    cv2.imwrite('good_{}.png'.format(name), image)
+def saveandshow_pic(name):
+    global ret
+    global image
+    print(ret)
+    if ret:
+#        cv2.imshow('picture_{}'.format(name), image)
         cv2.imwrite('pic_{}.png'.format(name), image)
+    else:
+        print('camara{} not yet open'.format(name))
 
-
+def saveandshow_pic2(name, image):
+    if ret[0]:
+        cv2.imwrite('pic_{}.png'.format(name[0]), image[0])
+    if ret[1]:
+        cv2.imwrite('pic_{}.png'.format(name[1]), image[1])
+    else:
+        print('camara{} not yet open'.format(name))
 class Camera(cv2.VideoCapture):
     def __init__(self, camera_number):
         self.camera_number = camera_number
@@ -84,97 +93,58 @@ class Camera(cv2.VideoCapture):
 #        cv2.imshow('good', img)
 #        self._cap.release()
 
-def timer(func, second=3, *arg):
+def timer(func, second=2, *arg):
 #    print(func, second, *arg)
     func(*arg)
-    Timer(second, timer, args=(func, 3, *arg)).start()
-
-    
-if __name__=='__main__':
-    import cv2
-
-#    cam = [cv2.VideoCapture(i) for i in range(2)]
-##    cam1 = cv2.VideoCapture(0)
-##    cam2 = cv2.VideoCapture(1)
-#    ret = [i for i in range(2)]
-#    img = [i for i in range(2)]
-#    timer(save&show_pic, name='', image='')
-#    while True:
-#        for i in range(2):    
-#            ret[i], img[i] = cam[i].read()
-#            cv2.imshow(str(i), img[i])
-#        print(cv2.waitKey(5))
-#        if cv2.waitKey(5) == 27:
-#            break
-#        if cv2.waitKey(5) == 115:
-#            for i in range(2):
-#                print_picture(str(i), img[i])
-#                save_picture(i, img[i])
-#    for i in range(2):
-#        cam[i].release()
-#    cv2.destroyAllWindows()
-    
-    cam = cv2.VideoCapture(0)
-    global img
-    img = None
-    timer(saveandshow_pic, 3, '1', img)
-    while True:
-        ret, img = cam.read()
-        cv2.imshow('1', img)
-        if cv2.waitKey(5) == 27:
-            break
-        if cv2.waitKey(5) == 115:
-            print_picture('1', img)
-            save_picture('1', img)
-
-    cam.release()
-    cv2.destroyAllWindows()
-
-#%% add timer for take a picture
-from threading import Timer
-import time
-def hello(name, idnum):
-    print('Hello {}! My id is {}'.format(name, idnum))
-
-
-def timer(func, second=3, *arg):
-    print(func, second, arg, *arg)
-    func(*arg)
-    Timer(second, timer, args=(func, 3, *arg)).start()
-
-if __name__=='__main__':
-    timer(hello, 2, 'a', 22)
-#    for i in range(10):
-#        time.sleep(1)
-#        print(i)
-    
-#%%
-from threading import Timer
-import time
-
-def hello():
-    global a
-    if a is 1:
-        print('a still is 1')
-    else:
-        print('good, now a is {}'.format(a))
-
-def timer(func, *arg):
-    func(*arg)
-    t = Timer(1, timer, args=(hello, *arg))
+    t = Timer(second, timer, args=(func, 2, *arg))
     t.setDaemon(True)
     if t.daemon:
         t.start()
     else:
+        global ret
+        global img
+        global name
+        del ret, img, name
         return 0
-    
-    
+
 if __name__=='__main__':
-#    start = time.time()
-#    timer(hello)
-     a = 1
-     timer(hello)
-     for i in range(6):
-         time.sleep(0.5)
-         a = i
+    import cv2
+
+    cam = [cv2.VideoCapture(i) for i in range(2)]
+#    cam1 = cv2.VideoCapture(0)
+#    cam2 = cv2.VideoCapture(1)
+    ret = [0 for i in range(2)]
+    img = [0 for i in range(2)]
+    name = [i for i in range(2)]
+    timer(saveandshow_pic2, 3, name, img)
+    while True:
+        for i in range(2):    
+            ret[i], img[i] = cam[i].read()
+            cv2.imshow(str(i), img[i])
+        if cv2.waitKey(5) == 27:
+            break
+        if cv2.waitKey(5) == 115:
+            for i in range(2):
+                save_picture(i, img[i])
+    for i in range(2):
+        cam[i].release()
+    cv2.destroyAllWindows()
+    
+    
+#    cam = cv2.VideoCapture(0)
+#    ret = image = 0
+#    timer(saveandshow_pic, 3, '1')
+#    while True:
+#        ret, image = cam.read()
+#        cv2.imshow('1', image)
+#        if cv2.waitKey(5) == 27:
+#            break
+##        if cv2.waitKey(5) == 115:
+##            print_picture('1', img)
+##            save_picture('1', img)
+#
+#    cam.release()
+#    cv2.destroyAllWindows()
+    
+# BUG, 守護現成殺不掉 變數沒有清除
 
