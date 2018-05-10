@@ -10,54 +10,18 @@ import cv2
 from matplotlib import pyplot as plt
 import numpy as np
 
-def thresh1():
-    im = cv2.imread('test.jpg')
-    imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
-    ret,thresh = cv2.threshold(imgray,200,255,0)
-    binary,contours,hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    hull = [cv2.convexHull(contours[i]) for i in range(len(contours))]
-    cv2.drawContours(im,hull,-1,(255, 0, 0), 2)
-    plt.hist(im.ravel(),256,[0,256])
-    cv2.namedWindow('thresh1', cv2.WINDOW_NORMAL)
-    cv2.imshow('thresh1', thresh)
-def thresh2():
-    im = cv2.imread('test.jpg')
-    imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
-    GaussianBlur = cv2.GaussianBlur(imgray, (9, 9), 0)
-    ret,thresh = cv2.threshold(GaussianBlur,200,255,0)
-    binary,contours,hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    hull = [cv2.convexHull(contours[i]) for i in range(len(contours))]
-    cv2.drawContours(im,hull,-1,(255, 0, 0), 2)
-    plt.hist(GaussianBlur.ravel(),256,[0,256])
-    cv2.namedWindow('thresh2', cv2.WINDOW_NORMAL)
-    cv2.imshow('thresh2', thresh)
-def thresh3():
-    im = cv2.imread('test.jpg')
-    imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
-    GaussianBlur = cv2.GaussianBlur(imgray, (15, 15), 0)
-#    medianBlur = cv2.medianBlur(GaussianBlur, 9)
-    ret,thresh = cv2.threshold(GaussianBlur,200,255,0)
-    binary,contours,hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-#    contours = [contours[i] for i in range(len(contours)) if len(contours[i]) > 100]
-    #np.array([len(contours[i]) for i in range(len(contours)) if len(contours[i]) > 100])
-    hull = [cv2.convexHull(contours[i]) for i in range(len(contours))]
-    box = []
-    for i in range(len(contours)):
-        rect = cv2.minAreaRect(contours[i])
-        points = cv2.boxPoints(rect)
-        box.append(np.int0(points))
-#    rect = cv2.minAreaRect(contours[10])
-#    box = cv2.boxPoints(rect)
-#    box = [np.int0(box)]
-    cv2.drawContours(im,box,-1,(255, 0, 0), 2)
-#    plt.hist(medianBlur.ravel(),256,[0,256])
-    cv2.namedWindow('thresh3', cv2.WINDOW_NORMAL)
-    cv2.imshow('thresh3', im)
 
-if __name__=='__main__':
-#    thresh1()
-#    thresh2()
-    thresh3()
+im = cv2.imread('7934900393276.jpg')
+imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
+GaussianBlur = cv2.GaussianBlur(imgray, (3, 3), 0)
+ret,thresh = cv2.threshold(GaussianBlur,75,255,0)
+binary,contours,hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+#    hull = [cv2.convexHull(contours[i]) for i in range(len(contours))]
+cv2.drawContours(im,contours,-1,(255, 0, 0), 2)
+plt.hist(GaussianBlur.ravel(),256,[0,256])
+cv2.namedWindow('thresh2', cv2.WINDOW_NORMAL)
+cv2.imshow('thresh2', thresh)
+
 
 #im = cv2.imread('test.jpg')
 ##plt.hist(im.ravel(),256,[0,256]) # 利用直方圖可檢視圖片的明度藉此找到閾值
