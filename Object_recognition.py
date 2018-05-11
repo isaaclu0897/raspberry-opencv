@@ -11,16 +11,22 @@ import numpy as np
 MIN_MATCH_COUNT = 4
 
 
-## (1) prepare data
+# load data
 img1 = cv2.imread('./test_recognition/1371867.jpg')
 img2 = cv2.imread('./test_recognition/1371866.jpg')
-
-
 gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
-## (2) Create SIFT object
-sift = cv2.xfeatures2d.SIFT_create()
+# Create features of detector(SIFT) 
+sift = cv2.xfeatures2d.SIFT_create() # you can choose SIFT or SURF
+
+#(kps, descs) = sift.detectAndCompute(gray1, None)
+#print("# kps: {}, descriptors: {}".format(len(kps), descs.shape))
+## kps: 274, descriptors: (274, 128)
+#surf = cv2.xfeatures2d.SURF_create()
+#(kps, descs) = surf.detectAndCompute(gray1, None)
+#print("# kps: {}, descriptors: {}".format(len(kps), descs.shape))
+## kps: 393, descriptors: (393, 64)
 
 ## (3) Create flann matcher
 matcher = cv2.FlannBasedMatcher(dict(algorithm = 1, trees = 5), {})
