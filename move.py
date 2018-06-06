@@ -8,79 +8,94 @@ Created on Wed Jun  6 13:05:23 2018
 
 import time
 import RPi.GPIO as GPIO
+from Non_block_input import waitkey
 
-enable_pin = 13
-in1_pin1 = 11
-in1_pin2 = 12
-in2_pin1 = 15
-in2_pin2 = 16
-S0 = 50
+left_pin = 15
+left_pin1 = 35
+left_pin2 = 36
+right_pin = 13
+right_pin1 = 38
+right_pin2 = 37
+S0 = 55
 speed = S0
 
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(enable_pin, GPIO.OUT)
-GPIO.setup(in1_pin1, GPIO.OUT)
-GPIO.setup(in1_pin2, GPIO.OUT)
-GPIO.setup(in2_pin1, GPIO.OUT)
-GPIO.setup(in2_pin2, GPIO.OUT)
+GPIO.setup(left_pin, GPIO.OUT)
+GPIO.setup(left_pin1, GPIO.OUT)
+GPIO.setup(left_pin2, GPIO.OUT)
+GPIO.setup(right_pin, GPIO.OUT)
+GPIO.setup(right_pin1, GPIO.OUT)
+GPIO.setup(right_pin2, GPIO.OUT)
 
-pwm = GPIO.PWM(enable_pin, 500)
-pwm.start(0)
+pwm_L = GPIO.PWM(left_pin, 500)
+pwm_R = GPIO.PWM(right_pin, 500)
+pwm_L.start(0)
+pwm_R.start(0)
+
 
 def W():
-    GPIO.output(in1_pin1, True)
-    GPIO.output(in1_pin2, False)
-    GPIO.output(in2_pin1, True)
-    GPIO.output(in2_pin2, False)
+    GPIO.output(left_pin1, True)
+    GPIO.output(left_pin2, False)
+    GPIO.output(right_pin1, True)
+    GPIO.output(right_pin2, False)
 
 def S():
-    GPIO.output(in1_pin1, False)
-    GPIO.output(in1_pin2, True)
-    GPIO.output(in2_pin1, False)
-    GPIO.output(in2_pin2, True)
+    GPIO.output(left_pin1, False)
+    GPIO.output(left_pin2, True)
+    GPIO.output(right_pin1, False)
+    GPIO.output(right_pin2, True)
 
 def A():
-    GPIO.output(in1_pin1, True)
-    GPIO.output(in1_pin2, False)
-    GPIO.output(in2_pin1, False)
-    GPIO.output(in2_pin2, True)
+    GPIO.output(left_pin1, True)
+    GPIO.output(left_pin2, False)
+    GPIO.output(right_pin1, False)
+    GPIO.output(right_pin2, True)
 
 def D():
-    GPIO.output(in1_pin1, False)
-    GPIO.output(in1_pin2, True)
-    GPIO.output(in2_pin1, True)
-    GPIO.output(in2_pin2, False)
+    GPIO.output(left_pin1, False)
+    GPIO.output(left_pin2, True)
+    GPIO.output(right_pin1, True)
+    GPIO.output(right_pin2, False)
+    
+def stop():
+    GPIO.output(left_pin1, False)
+    GPIO.output(left_pin2, False)
+    GPIO.output(right_pin1, False)
+    GPIO.output(right_pin2, False)
 
 try:
-
     while True:
-
-        cmd = raw_input("W S A D Q + -")
-        direction = cmd[0]
-        if direction == "q":
+        key = ord(waitkey())
+        print(key)
+        if key == 27:
             break
-        if direction == "w":
+        if key == 32:
+            stop()
+        if key == 119:
             W()
-        if direction == "s":
+        if key == 115:
             S()
-        if direction == "a":
+        if key == 97:
             A()
-        if direction == "d":
+        if key == 100:
             D()
-        if direction == "+":
-            if speed < 100:
+        if key == 43:
+            if speed < 95:
                 speed = speed +10
                 print("Now speed is",speed) 
             else:
                 print("Now speed is",speed)
-        if direction == "-":
-            if speed > 20:
+        if key == 45:
+            if speed > 15:
                 speed = speed -10
                 print("Now speed is",speed) 
             else:
                 print("Now speed is",speed)
-        pwm.ChangeDutyCycle(speed)
+        pwm_L.ChangeDutyCycle(speed)
+        pwm_R.ChangeDutyCycle(speed)
 
 finally:
-    pwm.stop()
+    stop()
+    pwm_L.stop()
+    pwm_R.stop()
     GPIO.cleanup()
