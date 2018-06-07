@@ -28,9 +28,14 @@ def saveandshow_pic(name):
 
 def saveandshow_pic2(name, image):
     if ret[0]:
-        cv2.imwrite('pic_{}.png'.format(name[0]), image[0])
+        cv2.imwrite('./share/pic_{}.png'.format(name[0]), image[0])
     if ret[1]:
-        cv2.imwrite('pic_{}.png'.format(name[1]), image[1])
+        cv2.imwrite('./share/pic_{}.png'.format(name[1]), image[1])
+    if ret[2]:
+        cv2.imwrite('./share/pic_{}.png'.format(name[2]), image[2])
+#    if ret[3]:
+#        cv2.imwrite('./share/pic_{}.png'.format(name[3]), image[3])
+    
     else:
         print('camara{} not yet open'.format(name))
 class Camera(cv2.VideoCapture):
@@ -110,23 +115,25 @@ def timer(func, second=2, *arg):
 if __name__=='__main__':
     import cv2
 
-    cam = [cv2.VideoCapture(i) for i in range(2)]
+    cam = [cv2.VideoCapture(i) for i in range(1, 4)]
 #    cam1 = cv2.VideoCapture(0)
 #    cam2 = cv2.VideoCapture(1)
-    ret = [0 for i in range(2)]
-    img = [0 for i in range(2)]
-    name = [i for i in range(2)]
+    cam_num = 3
+    ret = [0 for i in range(cam_num)]
+    img = [0 for i in range(cam_num)]
+    name = [i for i in range(cam_num)]
     timer(saveandshow_pic2, 3, name, img)
     while True:
-        for i in range(2):    
+        for i in range(cam_num):    
             ret[i], img[i] = cam[i].read()
+            cv2.namedWindow(str(i), cv2.WINDOW_NORMAL)
             cv2.imshow(str(i), img[i])
         if cv2.waitKey(5) == 27:
             break
         if cv2.waitKey(5) == 115:
             for i in range(2):
                 save_picture(i, img[i])
-    for i in range(2):
+    for i in range(cam_num):
         cam[i].release()
     cv2.destroyAllWindows()
     
@@ -147,4 +154,5 @@ if __name__=='__main__':
 #    cv2.destroyAllWindows()
     
 # BUG, 守護現成殺不掉 變數沒有清除
+# 雞巴！
 
