@@ -33,7 +33,7 @@ def waitkey():
     fcntl.fcntl(fd, fcntl.F_SETFL, flags_save & ~os.O_NONBLOCK)
     # read a single keystroke
     try:
-        ret = sys.stdin.read(2) # returns a single character
+        ret = sys.stdin.read(1) # returns a single character
         if ret == None:
             ret = -1
     except KeyboardInterrupt: 

@@ -8,79 +8,144 @@ Created on Wed Jun  6 13:05:23 2018
 
 import time
 import RPi.GPIO as GPIO
+from Non_block_input import waitkey
+from time import sleep
 
-enable_pin = 13
-in1_pin1 = 11
-in1_pin2 = 12
-in2_pin1 = 15
-in2_pin2 = 16
-S0 = 50
-speed = S0
+#left_pin = 15
+#left_pin1 = 35
+#left_pin2 = 36
+#right_pin = 13
+#right_pin1 = 38
+#right_pin2 = 37
 
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(enable_pin, GPIO.OUT)
-GPIO.setup(in1_pin1, GPIO.OUT)
-GPIO.setup(in1_pin2, GPIO.OUT)
-GPIO.setup(in2_pin1, GPIO.OUT)
-GPIO.setup(in2_pin2, GPIO.OUT)
+def left_pins():
+    left_pin = 13
+    left_pin1 = 15
+    left_pin2 = 16
+    return left_pin, left_pin1, left_pin2
 
-pwm = GPIO.PWM(enable_pin, 500)
-pwm.start(0)
+def right_pins():
+    right_pin = 13
+    right_pin1 = 12
+    right_pin2 = 11
+    return right_pin, right_pin1, right_pin2
 
-def W():
-    GPIO.output(in1_pin1, True)
-    GPIO.output(in1_pin2, False)
-    GPIO.output(in2_pin1, True)
-    GPIO.output(in2_pin2, False)
 
-def S():
-    GPIO.output(in1_pin1, False)
-    GPIO.output(in1_pin2, True)
-    GPIO.output(in2_pin1, False)
-    GPIO.output(in2_pin2, True)
+class MOTOR(object):
+    def __init__(self, ENABLE_PIN, IN1, IN2, MOTOR_FREQ=500):
+        self.enable_pin = ENABLE_PIN
+        self.in1_pin = IN1
+        self.in2_pin = IN2
+        
+        GPIO.setmode(GPIO.BOARD)
 
-def A():
-    GPIO.output(in1_pin1, True)
-    GPIO.output(in1_pin2, False)
-    GPIO.output(in2_pin1, False)
-    GPIO.output(in2_pin2, True)
+        GPIO.setup(self.enable_pin, GPIO.OUT)
+        GPIO.setup(self.in1_pin, GPIO.OUT)
+        GPIO.setup(self.in2_pin, GPIO.OUT)
 
-def D():
-    GPIO.output(in1_pin1, False)
-    GPIO.output(in1_pin2, True)
-    GPIO.output(in2_pin1, True)
-    GPIO.output(in2_pin2, False)
+        self.pwm = GPIO.PWM(self.enable_pin, MOTOR_FREQ)
+        self.pwm.start(0)
+        self.speed=55
 
-try:
+    def start(self):
+        GPIO.output(self.in1_pin, False)
+        GPIO.output(self.in2_pin, False)
+        self.pwm.ChangeDutyCycle(self.speed)
 
-    while True:
+    def forword(self):
+        GPIO.output(self.in1_pin, True)
+        GPIO.output(self.in2_pin, False)
 
-        cmd = raw_input("W S A D Q + -")
-        direction = cmd[0]
-        if direction == "q":
-            break
-        if direction == "w":
-            W()
-        if direction == "s":
-            S()
-        if direction == "a":
-            A()
-        if direction == "d":
-            D()
-        if direction == "+":
-            if speed < 100:
-                speed = speed +10
-                print("Now speed is",speed) 
-            else:
-                print("Now speed is",speed)
-        if direction == "-":
-            if speed > 20:
-                speed = speed -10
-                print("Now speed is",speed) 
-            else:
-                print("Now speed is",speed)
-        pwm.ChangeDutyCycle(speed)
+    def back(self):
+        GPIO.output(self.in1_pin, False)
+        GPIO.output(self.in2_pin, True)
 
-finally:
-    pwm.stop()
-    GPIO.cleanup()
+    def add_speed(self, level=10):
+        if self.speed < 95:
+            self.speed += level
+        else:
+            pass
+        self.pwm.ChangeDutyCycle(self.speed)
+        print('now speed is {}'.format(self.speed))
+
+    def minus_speed(self, level=10):
+        if self.speed > 25:
+            self.speed -= level
+        else:
+            pass
+        self.pwm.ChangeDutyCycle(self.speed)
+        print('now speed is {}'.format(self.speed))
+        
+    def stop(self):
+##        self.pwm.stop()
+        GPIO.output(self.in1_pin, False)
+        GPIO.output(self.in2_pin, False)
+
+        
+class CAR(object):
+    def __init__(self, left_wheel, right_wheel):
+        self.left_wheel = left_wheel
+        self.right_wheel = right_wheel
+
+    def forword(self):
+        self.left_wheel.forword()
+        self.right_wheel.forword()
+        
+    def back(self):
+        self.left_wheel.back()
+        self.right_wheel.back()
+        
+    def right(self):
+        self.left_wheel.forword()
+        self.right_wheel.back()
+        
+    def left(self):
+        self.left_wheel.back()
+        self.right_wheel.forword()
+        
+    def add_speed(self):
+        self.left_wheel.add_speed()
+        self.right_wheel.add_speed()
+        
+    def minus_speed(self):
+        self.left_wheel.minus_speed()
+        self.right_wheel.minus_speed()
+        
+        
+    def stop(self):
+        self.left_wheel.stop()
+        self.right_wheel.stop()
+
+
+if __name__=='__main__':
+    left_motor = MOTOR(*left_pins())
+    right_motor = MOTOR(*right_pins())
+    
+    car = CAR(right_motor, left_motor)
+    try:
+        left_motor.start()
+        while True:
+            key = ord(waitkey())
+            print(key)
+            if key == 27:
+                break
+            if key == 32:
+                car.stop()
+            if key == 119:
+                car.forword()
+            if key == 115:
+                car.back()
+            if key == 97:
+                car.right()
+            if key == 100:
+                car.left()
+            if key == 43:
+                car.add_speed()
+            if key == 45:
+                car.minus_speed()
+        
+    finally:
+        car.stop()
+        GPIO.cleanup()
+
+
